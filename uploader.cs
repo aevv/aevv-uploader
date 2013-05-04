@@ -18,7 +18,6 @@ namespace WindowsFormsApplication4
     //TODO USE FORM FOR BOUNDING BOX INSTEAD SO CAN STRETCH ACROSS MONITORS!
     partial class uploader : Form
     {
-
         public static object Lock = new object();
         public static object QueueLock = new object();
         private void uploadWorker()
@@ -36,17 +35,25 @@ namespace WindowsFormsApplication4
             nvc.Add("key", "2036d03fad91b54fe094c625040892d2");
             string response = WebStuff.HttpUploadFile("http://api.imgur.com/3/upload.xml", n, "image", "image/bmp", nvc);
 
-            using (XmlReader reader = XmlReader.Create(new StringReader(response)))
+            try
             {
-                reader.ReadToFollowing("original");
-                link = reader.ReadElementContentAsString();
+                using (XmlReader reader = XmlReader.Create(new StringReader(response)))
+                {
+
+                    reader.ReadToFollowing("original");
+                    link = reader.ReadElementContentAsString();
+                }
+                this.Invoke(new testcallback(delegate(string s)
+                {
+                    Clipboard.SetText(s);
+                    trayIcon.ShowBalloonTip(5000, "Upload done", s, ToolTipIcon.None);
+                    trayMenu.MenuItems.Add(s, new EventHandler(delegate(object o, EventArgs ea) { Clipboard.SetText(s); }));
+                }), link);
             }
-            this.Invoke(new testcallback(delegate(string s)
+            catch
             {
-                Clipboard.SetText(s);
-                trayIcon.ShowBalloonTip(5000, "Upload done", s, ToolTipIcon.None);
-                trayMenu.MenuItems.Add(s, new EventHandler(delegate(object o, EventArgs ea) { Clipboard.SetText(s); }));
-            }), link);
+                //error
+            }
         }
         public uploader()
             : base()
@@ -108,7 +115,7 @@ namespace WindowsFormsApplication4
             }
             base.WndProc(ref m);
         }
-        bool run = false;
+        bool run = false, canShow = false;
         public delegate void activate();
         private void activateUI()
         {
@@ -124,6 +131,11 @@ namespace WindowsFormsApplication4
                     new Thread(new ThreadStart(delegate()
                     {
                         run = true;
+                        if (this.InvokeRequired && canShow)
+                        {
+                            this.Invoke(new activate(this.Show));
+                            canShow = false;
+                        }
                         if (this.InvokeRequired)
                         {
                             this.Invoke(new activate(this.activateUI));
@@ -157,6 +169,11 @@ namespace WindowsFormsApplication4
                                     uploads.Enqueue(bm);
                                 }
                                 new Thread(uploadWorker).Start();
+                                if (this.InvokeRequired)
+                                {
+                                    this.Invoke(new activate(this.Hide));
+                                    canShow = true;
+                                }
                             }
                         }
                     })).Start();
