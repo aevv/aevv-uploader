@@ -16,6 +16,12 @@ using System.Threading;
 namespace WindowsFormsApplication4
 {
     //TODO USE FORM FOR BOUNDING BOX INSTEAD SO CAN STRETCH ACROSS MONITORS!
+    //First revision just fullscreen transparent window so it worked on one monitor
+    //2nd revision -- transparent window that stretched over every monitor (not fullscreen) but still used the black box with the transparency key
+    //this time -- resizes window itself instead of having a black box, no transparency key and errors don't fuck up as bad
+
+
+
     partial class uploader : Form
     {
         public static object Lock = new object();
