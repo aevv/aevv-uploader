@@ -43,7 +43,7 @@ namespace WindowsFormsApplication4
         {
             if (wParam == 0x201 && nCode >= 0)
                 return -1;
-            return CallNextHookEx(s_MouseHookHandle, nCode, wParam, lParam);
+            return CallNextHookEx(_mouseHookHandle, nCode, wParam, lParam);
         }
 
         [DllImport("user32.dll", CharSet = CharSet.Auto,
@@ -75,15 +75,15 @@ namespace WindowsFormsApplication4
 
         private static void ForceUnsunscribeFromGlobalMouseEvents()
         {
-            if (s_MouseHookHandle != 0)
+            if (_mouseHookHandle != 0)
             {
                 //uninstall hook
                 //uninstall hook
-                var result = UnhookWindowsHookEx(s_MouseHookHandle);
+                var result = UnhookWindowsHookEx(_mouseHookHandle);
                 //reset invalid handle
-                s_MouseHookHandle = 0;
+                _mouseHookHandle = 0;
                 //Free up for GC
-                s_MouseDelegate = null;
+                _mouseDelegate = null;
                 //if failed and exception must be thrown
                 if (result == 0)
                 {

@@ -36,9 +36,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Gma.UserActivityMonitor">
-      <HintPath>.\Gma.UserActivityMonitor.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
@@ -53,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Hotkeys.cs" />
+    <Compile Include="IO\Hotkey.cs" />
     <Compile Include="UploaderForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -80,7 +78,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="uploader.winimports.cs">
+    <Compile Include="UploaderForm.winimports.cs">
       <SubType>Form</SubType>
     </Compile>
   </ItemGroup>

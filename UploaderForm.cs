@@ -39,9 +39,13 @@ namespace WindowsFormsApplication4
         private bool _run, _canShow;
         private Rectangle _selected;
         private Point? _start;
+        private KeyboardHook _hook;
 
         public UploaderForm()
         {
+            _hook = new KeyboardHook();
+            _hook.RegisterHotKey(global::ModifierKeys.None, Keys.D3);
+            _hook.KeyPressed += (sender, args) => { Console.Write("hi"); };
             var w = 0;
             var h = 0;
             foreach (var i in Screen.AllScreens)
@@ -65,6 +69,7 @@ namespace WindowsFormsApplication4
                 if (!_currentState.ContainsKey(i))
                     _currentState.Add(i, false);
             }
+            
             //  HookManager.MouseDown += new MouseEventHandler(HookManager_MouseDown);
             //    HookManager.MouseUp += new MouseEventHandler(HookManager_MouseUp);
             //    HookManager.MouseClick += new MouseEventHandler(HookManager_MouseClickExt);
@@ -82,11 +87,6 @@ namespace WindowsFormsApplication4
             // Add menu to tray icon and show it.
             _trayIcon.ContextMenu = _trayMenu;
             _trayIcon.Visible = true;
-            KeyPress += uploader_KeyPress;
-            var key2 = new GlobalHotkey(Constants.CTRL | Constants.SHIFT, Keys.D2, this);
-            key2.Register();
-            var key = new GlobalHotkey(Constants.CTRL | Constants.SHIFT, Keys.D1, this);
-            key.Register();
         }
 
         private void uploadWorker()
