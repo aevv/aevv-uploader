@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
@@ -8,9 +8,9 @@
     <ProjectGuid>{FE5DA7D1-1A99-471A-8D50-B633BAD0B192}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WindowsFormsApplication4</RootNamespace>
-    <AssemblyName>WindowsFormsApplication4</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <RootNamespace>aevvuploader</RootNamespace>
+    <AssemblyName>aevvuploader</AssemblyName>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -25,6 +25,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>false</UseVSHostingProcess>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -34,6 +35,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -49,8 +51,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Hotkeys.cs" />
     <Compile Include="IO\Hotkey.cs" />
+    <Compile Include="IVisibleForm.cs" />
+    <Compile Include="KeyHandling\CurrentWindowHandler.cs" />
+    <Compile Include="KeyHandling\FullScreenHandler.cs" />
+    <Compile Include="KeyHandling\IInputHandler.cs" />
+    <Compile Include="KeyHandling\KeyHandler.cs" />
+    <Compile Include="KeyHandling\SelectedAreaHandler.cs" />
+    <Compile Include="KeyHandling\SingleMonitorHandler.cs" />
+    <Compile Include="KeyHandling\TestHandler.cs" />
+    <Compile Include="ScreenCapturing\ScreenshotCreator.cs" />
     <Compile Include="UploaderForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -77,9 +87,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="UploaderForm.winimports.cs">
-      <SubType>Form</SubType>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
