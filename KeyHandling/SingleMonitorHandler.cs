@@ -11,7 +11,7 @@ namespace aevvuploader.KeyHandling
 {
     class SingleMonitorHandler : IInputHandler
     {
-        public void Handle(IVisibleForm form)
+        public void Handle(IVisibleForm form, KeyboardHook hook)
         {
             var mouseLocation = Cursor.Position;
             foreach (var screen in Screen.AllScreens)

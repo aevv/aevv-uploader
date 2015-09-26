@@ -22,7 +22,7 @@ namespace aevvuploader.KeyHandling
         {
             if (_keyHandlers.ContainsKey(args.Key))
             {
-                _keyHandlers[args.Key].Handle(_form);
+                _keyHandlers[args.Key].Handle(_form, _hook);
             }
         }
 
@@ -41,6 +41,9 @@ namespace aevvuploader.KeyHandling
 
             _hook.RegisterHotKey(ModifierKeys.Control | ModifierKeys.Shift, Keys.D3);
             _keyHandlers.Add(Keys.D3, new FullScreenHandler());
+
+            _hook.RegisterHotKey(ModifierKeys.Control | ModifierKeys.Shift, Keys.D4);
+            _keyHandlers.Add(Keys.D4, new SelectedAreaHandler());
         }
     }
 }

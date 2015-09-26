@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using aevvuploader.KeyHandling;
@@ -34,6 +35,7 @@ namespace aevvuploader
         private Point? _start;
         private NotifyIcon _trayIcon;
         private ContextMenu _trayMenu;
+        private bool _firstTimeShown = true;
 
         public UploaderForm()
         {
@@ -66,7 +68,10 @@ namespace aevvuploader
             ShowInTaskbar = false;
             Opacity = .3;
             FormBorderStyle = FormBorderStyle.None;
+            StartPosition = FormStartPosition.Manual;
+            Location = new Point(-5000, -5000);
             Hide();
+            Shown += UploaderForm_Shown;
         }
 
         private void ConfigureTrayIcon()
@@ -125,6 +130,49 @@ namespace aevvuploader
 
             base.Dispose(isDisposing);
         }
+
+        private void UploaderForm_Shown(object sender, EventArgs e)
+        {
+            if (_firstTimeShown)
+            {
+                Shown -= UploaderForm_Shown;
+                _firstTimeShown = false;
+                Hide();
+            }
+        }
+
+        delegate void Invoker();
+
+        public void Invoke(Action action)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Invoker(() => action()));
+            }
+            else
+            {
+                action();
+            }
+        }
+
+        // TODO: fix this hacky mess
+        private Action _canceller;
+        public void RegisterCancellation(Action cancelMe)
+        {
+            _canceller = cancelMe;
+            KeyDown += Cancel;
+        }
+
+        private void Cancel(object sender, KeyEventArgs args)
+        {
+            if (args.KeyCode == Keys.Escape)
+            {
+                KeyDown -= Cancel;
+                _canceller();
+            }
+        }
+
+
 
         [STAThread]
         public static void Main(string[] args)
