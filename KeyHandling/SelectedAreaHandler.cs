@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Web.Management;
 using System.Windows.Forms;
 using aevvuploader.ScreenCapturing;
+using imguruploader.IO;
 
 namespace aevvuploader.KeyHandling
 {
-    class SelectedAreaHandler : IInputHandler
+    internal class SelectedAreaHandler : IInputHandler
     {
         public void Handle(IScreenshottableForm form, KeyboardHook hook)
         {
@@ -21,6 +15,8 @@ namespace aevvuploader.KeyHandling
                 form.Explode(CaptureArea);
             }
         }
+
+        public Keys TriggerKey => Keys.D4;
 
         private void CaptureArea(bool success, Rectangle area)
         {
@@ -33,9 +29,6 @@ namespace aevvuploader.KeyHandling
             var bitmap = capture.GetArea(area);
 
             bitmap.Save("C:\\Temp\\Area.png", ImageFormat.Png);
-
         }
-
-        public Keys TriggerKey => Keys.D4;
     }
 }

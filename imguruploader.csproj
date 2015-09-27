@@ -62,12 +62,10 @@
     <Compile Include="KeyHandling\KeyHandler.cs" />
     <Compile Include="KeyHandling\SelectedAreaHandler.cs" />
     <Compile Include="KeyHandling\SingleMonitorHandler.cs" />
-    <Compile Include="KeyHandling\TestHandler.cs" />
     <Compile Include="ScreenCapturing\ScreenshotCreator.cs" />
     <Compile Include="UploaderForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="WebStuff.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

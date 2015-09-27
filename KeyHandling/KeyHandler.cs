@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Windows.Forms;
+using imguruploader.IO;
 
 namespace aevvuploader.KeyHandling
 {
     public class KeyHandler
     {
         private readonly IScreenshottableForm _form;
-        private KeyboardHook _hook;
-
         private readonly Dictionary<Keys, IInputHandler> _keyHandlers;
+        private KeyboardHook _hook;
 
         public KeyHandler(IScreenshottableForm form)
         {
@@ -30,9 +29,6 @@ namespace aevvuploader.KeyHandling
         {
             _hook = hook;
             // TODO: Reflect service locator-y
-            _hook.RegisterHotKey(ModifierKeys.Control | ModifierKeys.Shift, Keys.I);
-            _keyHandlers.Add(Keys.I, new TestHandler());
-
             _hook.RegisterHotKey(ModifierKeys.Control | ModifierKeys.Shift, Keys.D1);
             _keyHandlers.Add(Keys.D1, new SingleMonitorHandler());
 

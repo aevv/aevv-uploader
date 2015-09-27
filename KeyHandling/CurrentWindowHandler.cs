@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Drawing.Imaging;
 using System.Windows.Forms;
 using aevvuploader.ScreenCapturing;
+using imguruploader.IO;
 
 namespace aevvuploader.KeyHandling
 {
-    class CurrentWindowHandler : IInputHandler
+    internal class CurrentWindowHandler : IInputHandler
     {
         public void Handle(IScreenshottableForm form, KeyboardHook hook)
         {

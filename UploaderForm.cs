@@ -1,19 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Drawing;
-using System.IO;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Xml;
 using aevvuploader.KeyHandling;
+using imguruploader.IO;
 
 namespace aevvuploader
 {
-    partial class UploaderForm : Form, IScreenshottableForm
+    internal class UploaderForm : Form, IScreenshottableForm
     {
         public delegate void ActivateDelegate();
 
@@ -22,12 +17,14 @@ namespace aevvuploader
         // Keep reference to this alive due to unmanaged memory bla bla
         private readonly KeyHandler _handler;
         private readonly KeyboardHook _hook;
+        private bool _buttonDown;
+        private bool _cancel;
+        private Form _clickForm;
+        private bool _firstTimeShown = true;
+        private Point _startingLocation;
+        private bool _success;
         private NotifyIcon _trayIcon;
         private ContextMenu _trayMenu;
-        private bool _firstTimeShown = true;
-
-        private bool _cancel = false;
-        private bool _success = false;
 
         public UploaderForm()
         {
@@ -50,6 +47,30 @@ namespace aevvuploader
             {
                 Show();
             }
+        }
+
+        public void Invoke(Action action)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Invoker(() => action()));
+            }
+            else
+            {
+                action();
+            }
+        }
+
+        public void Explode(Action<bool, Rectangle> implosionCallback)
+        {
+            Location = new Point(SystemInformation.VirtualScreen.Left, SystemInformation.VirtualScreen.Top);
+            Size = new Size(SystemInformation.VirtualScreen.Width, SystemInformation.VirtualScreen.Height);
+
+            Show();
+            Task.Factory.StartNew(() => DrawSelection(implosionCallback));
+
+            KeyDown += Cancel;
+            CreateClickForm();
         }
 
         private void ConfigureInvisibleForm()
@@ -99,20 +120,6 @@ namespace aevvuploader
             }
         }
 
-        delegate void Invoker();
-
-        public void Invoke(Action action)
-        {
-            if (InvokeRequired)
-            {
-                Invoke(new Invoker(() => action()));
-            }
-            else
-            {
-                action();
-            }
-        }
-
         private void Cancel(object sender, KeyEventArgs args)
         {
             if (args.KeyCode == Keys.Escape)
@@ -127,8 +134,6 @@ namespace aevvuploader
                 _buttonDown = false;
             }
         }
-
-        private bool _buttonDown;
 
         private void MouseDownEventHandler(object sender, MouseEventArgs args)
         {
@@ -154,19 +159,6 @@ namespace aevvuploader
         }
 
         // TODO: tidy _clickForm hack - probably cant remove but at least tidy it
-        private Form _clickForm;
-        public void Explode(Action<bool, Rectangle> implosionCallback)
-        {
-            Location = new Point(SystemInformation.VirtualScreen.Left, SystemInformation.VirtualScreen.Top);
-            Size = new Size(SystemInformation.VirtualScreen.Width, SystemInformation.VirtualScreen.Height);
-
-            Show();
-            Task.Factory.StartNew(() => DrawSelection(implosionCallback));
-
-            KeyDown += Cancel;
-            CreateClickForm();
-        }
-
         private void CreateClickForm()
         {
             _clickForm = new Form();
@@ -178,6 +170,8 @@ namespace aevvuploader
             _clickForm.Location = Location;
             _clickForm.Size = Size;
             _clickForm.Opacity = 0.01d;
+
+            _clickForm.Cursor = Cursors.SizeAll;
         }
 
         public void Implode()
@@ -185,12 +179,13 @@ namespace aevvuploader
             Location = new Point(-5000, -5000);
             Size = new Size(0, 0);
 
+            _clickForm.Cursor = Cursors.Default;
+
             _clickForm.Close();
         }
 
         // TODO: Better management of state between threads
         // TODO: remove duplication
-        private Point _startingLocation;
         private void DrawSelection(Action<bool, Rectangle> callback)
         {
             while (!_cancel && !_success)
@@ -198,7 +193,7 @@ namespace aevvuploader
                 if (_buttonDown)
                 {
                     Invoke(() => DrawRect(_startingLocation,
-                                new Point(Cursor.Position.X - SystemInformation.VirtualScreen.Left, Cursor.Position.Y - SystemInformation.VirtualScreen.Top)));
+                        new Point(Cursor.Position.X - SystemInformation.VirtualScreen.Left, Cursor.Position.Y - SystemInformation.VirtualScreen.Top)));
                 }
                 Thread.Sleep(50);
             }
@@ -206,7 +201,7 @@ namespace aevvuploader
 
             var endPosition = new Point(Cursor.Position.X - SystemInformation.VirtualScreen.Left, Cursor.Position.Y - SystemInformation.VirtualScreen.Top);
             callback(_success, new Rectangle(Math.Min(_startingLocation.X, endPosition.X), Math.Min(_startingLocation.Y, endPosition.Y),
-                    Math.Abs(endPosition.X - _startingLocation.X), Math.Abs(endPosition.Y - _startingLocation.Y)));
+                Math.Abs(endPosition.X - _startingLocation.X), Math.Abs(endPosition.Y - _startingLocation.Y)));
         }
 
         private void DrawRect(Point topLeft, Point bottomRight)
@@ -215,7 +210,6 @@ namespace aevvuploader
             {
                 var brush = new SolidBrush(Color.DimGray);
                 graphics.Clear(Color.Purple);
-                // TODO: backwards rect
                 graphics.FillRectangle(brush, Math.Min(topLeft.X, bottomRight.X), Math.Min(topLeft.Y, bottomRight.Y),
                     Math.Abs(bottomRight.X - topLeft.X), Math.Abs(bottomRight.Y - topLeft.Y));
                 brush.Dispose();
@@ -227,5 +221,7 @@ namespace aevvuploader
         {
             Application.Run(new UploaderForm());
         }
+
+        private delegate void Invoker();
     }
 }

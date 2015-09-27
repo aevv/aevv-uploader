@@ -1,24 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using aevvuploader.KeyHandling;
 
 namespace aevvuploader.ScreenCapturing
 {
-    class ScreenshotCreator
+    internal class ScreenshotCreator
     {
         public Bitmap GetAllMonitors()
         {
             var bitmap = new Bitmap(SystemInformation.VirtualScreen.Width, SystemInformation.VirtualScreen.Height, PixelFormat.Format32bppArgb);
             using (var graphics = Graphics.FromImage(bitmap))
             {
-                graphics.CopyFromScreen(SystemInformation.VirtualScreen.Left, SystemInformation.VirtualScreen.Top, 0, 0, bitmap.Size, CopyPixelOperation.SourceCopy);
+                graphics.CopyFromScreen(SystemInformation.VirtualScreen.Left, SystemInformation.VirtualScreen.Top, 0, 0, bitmap.Size,
+                    CopyPixelOperation.SourceCopy);
                 return bitmap;
             }
         }
