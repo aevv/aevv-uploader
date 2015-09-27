@@ -13,7 +13,7 @@ namespace aevvuploader.KeyHandling
 {
     class CurrentWindowHandler : IInputHandler
     {
-        public void Handle(IVisibleForm form, KeyboardHook hook)
+        public void Handle(IScreenshottableForm form, KeyboardHook hook)
         {
             var capture = new ScreenshotCreator();
 

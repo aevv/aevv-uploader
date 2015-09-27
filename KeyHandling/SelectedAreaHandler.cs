@@ -1,43 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web.Management;
 using System.Windows.Forms;
+using aevvuploader.ScreenCapturing;
 
 namespace aevvuploader.KeyHandling
 {
     class SelectedAreaHandler : IInputHandler
     {
-        public void Handle(IVisibleForm form, KeyboardHook hook)
+        public void Handle(IScreenshottableForm form, KeyboardHook hook)
         {
             if (!form.Visible)
             {
-                form.Invoke(() => form.Size = new Size(0,0));
-                form.Show();
-                form.Location = new Point(Cursor.Position.X, Cursor.Position.Y);
-                Task.Factory.StartNew(() => ResizeConstantly(form, hook));
+                form.Explode(CaptureArea);
             }
         }
 
-        private void ResizeConstantly(IVisibleForm form, KeyboardHook hook)
+        private void CaptureArea(bool success, Rectangle area)
         {
-            bool cancel = false;
-
-            form.RegisterCancellation(() => cancel = true);
-
-            Point baseLoc = form.Location;
-
-            while (!cancel)
+            if (!success)
             {
-                form.Invoke(() => form.Size = new Size(Cursor.Position.X - baseLoc.X, Cursor.Position.Y - baseLoc.Y));
-                Thread.Sleep(50);
+                return;
             }
 
-            form.Invoke(() => form.Hide());
-            form.Invoke(() => form.Size = new Size(0, 0));
+            var capture = new ScreenshotCreator();
+            var bitmap = capture.GetArea(area);
+
+            bitmap.Save("C:\\Temp\\Area.png", ImageFormat.Png);
+
         }
 
         public Keys TriggerKey => Keys.D4;

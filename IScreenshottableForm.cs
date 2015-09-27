@@ -3,16 +3,19 @@ using System.Drawing;
 
 namespace aevvuploader
 {
-    public interface IVisibleForm
+    public interface IScreenshottableForm
     {
         bool Visible { get; }
         void ToggleVisibility();
         void Show();
         void Hide();
+
         Point Location { get; set; }
-        void RegisterCancellation(Action cancelMe);
+        Size Size { get; set; }
+
+        void Explode(Action<bool, Rectangle> implosionCallback);
+
         void Invoke(Action action);
 
-        Size Size { get; set; }
     }
 }

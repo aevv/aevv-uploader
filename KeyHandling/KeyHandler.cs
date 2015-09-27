@@ -6,12 +6,12 @@ namespace aevvuploader.KeyHandling
 {
     public class KeyHandler
     {
-        private readonly IVisibleForm _form;
+        private readonly IScreenshottableForm _form;
         private KeyboardHook _hook;
 
         private readonly Dictionary<Keys, IInputHandler> _keyHandlers;
 
-        public KeyHandler(IVisibleForm form)
+        public KeyHandler(IScreenshottableForm form)
         {
             _form = form;
 

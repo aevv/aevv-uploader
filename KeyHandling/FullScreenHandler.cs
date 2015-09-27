@@ -11,7 +11,7 @@ namespace aevvuploader.KeyHandling
 {
     class FullScreenHandler : IInputHandler
     {
-        public void Handle(IVisibleForm form, KeyboardHook hook)
+        public void Handle(IScreenshottableForm form, KeyboardHook hook)
         {
             var capture = new ScreenshotCreator();
             var fullScreen = capture.GetAllMonitors();

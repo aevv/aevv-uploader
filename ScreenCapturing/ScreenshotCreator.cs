@@ -67,6 +67,18 @@ namespace aevvuploader.ScreenCapturing
             return null;
         }
 
+        public Bitmap GetArea(Rectangle area)
+        {
+            var bitmap = new Bitmap(area.Width, area.Height, PixelFormat.Format32bppArgb);
+            using (var graphics = Graphics.FromImage(bitmap))
+            {
+                var left = SystemInformation.VirtualScreen.Left + area.Left;
+                var top = SystemInformation.VirtualScreen.Top + area.Top;
+                graphics.CopyFromScreen(left, top, 0, 0, bitmap.Size, CopyPixelOperation.SourceCopy);
+                return bitmap;
+            }
+        }
+
         [DllImport("user32.dll")]
         private static extern IntPtr GetForegroundWindow();
 

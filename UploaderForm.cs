@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -12,30 +13,21 @@ using aevvuploader.KeyHandling;
 
 namespace aevvuploader
 {
-    partial class UploaderForm : Form, IVisibleForm
+    partial class UploaderForm : Form, IScreenshottableForm
     {
         public delegate void ActivateDelegate();
 
         public delegate void TestCallback(string s);
 
-        private const int WH_MOUSE_LL = 14;
-        public static object Lock = new object();
-        public static object QueueLock = new object();
-        private static int _mouseHookHandle;
-        private readonly Dictionary<Keys, bool> _currentState = new Dictionary<Keys, bool>();
         // Keep reference to this alive due to unmanaged memory bla bla
         private readonly KeyHandler _handler;
         private readonly KeyboardHook _hook;
-        private readonly Queue<Bitmap> _uploads = new Queue<Bitmap>();
-        private int _counter;
-        private bool _initial;
-        private Point _lastPoint;
-        private bool _run, _canShow;
-        private Rectangle _selected;
-        private Point? _start;
         private NotifyIcon _trayIcon;
         private ContextMenu _trayMenu;
         private bool _firstTimeShown = true;
+
+        private bool _cancel = false;
+        private bool _success = false;
 
         public UploaderForm()
         {
@@ -62,11 +54,12 @@ namespace aevvuploader
 
         private void ConfigureInvisibleForm()
         {
-            BackColor = Color.DarkGray;
+            BackColor = Color.Purple;
             TopMost = true;
             DoubleBuffered = true;
             ShowInTaskbar = false;
-            Opacity = .3;
+            TransparencyKey = Color.Purple;
+            Opacity = 0.3f;
             FormBorderStyle = FormBorderStyle.None;
             StartPosition = FormStartPosition.Manual;
             Location = new Point(-5000, -5000);
@@ -84,41 +77,6 @@ namespace aevvuploader
 
             _trayIcon.ContextMenu = _trayMenu;
             _trayIcon.Visible = true;
-        }
-
-        private void uploadWorker()
-        {
-            Bitmap toUp = null;
-            lock (QueueLock)
-            {
-                toUp = _uploads.Dequeue();
-            }
-            var link = "";
-
-            var n = string.Format("img-{0:yyyy-MM-dd_hh-mm-ss-tt-fffffff}.bmp", DateTime.Now);
-            toUp.Save(n);
-            var nvc = new NameValueCollection();
-            nvc.Add("key", "2036d03fad91b54fe094c625040892d2");
-            var response = WebStuff.HttpUploadFile("http://api.imgur.com/3/upload.xml", n, "image", "image/bmp", nvc);
-
-            try
-            {
-                using (var reader = XmlReader.Create(new StringReader(response)))
-                {
-                    reader.ReadToFollowing("original");
-                    link = reader.ReadElementContentAsString();
-                }
-                Invoke(new TestCallback(delegate(string s)
-                {
-                    Clipboard.SetText(s);
-                    _trayIcon.ShowBalloonTip(5000, "Upload done", s, ToolTipIcon.None);
-                    _trayMenu.MenuItems.Add(s, delegate { Clipboard.SetText(s); });
-                }), link);
-            }
-            catch
-            {
-                //error
-            }
         }
 
         protected override void Dispose(bool isDisposing)
@@ -155,24 +113,114 @@ namespace aevvuploader
             }
         }
 
-        // TODO: fix this hacky mess
-        private Action _canceller;
-        public void RegisterCancellation(Action cancelMe)
-        {
-            _canceller = cancelMe;
-            KeyDown += Cancel;
-        }
-
         private void Cancel(object sender, KeyEventArgs args)
         {
             if (args.KeyCode == Keys.Escape)
             {
                 KeyDown -= Cancel;
-                _canceller();
+                // TODO: Race conditions?
+                _success = false;
+                _cancel = true;
+
+                _clickForm.MouseUp -= MouseUpEventHandler;
+                _clickForm.MouseDown -= MouseDownEventHandler;
+                _buttonDown = false;
             }
         }
 
+        private bool _buttonDown;
 
+        private void MouseDownEventHandler(object sender, MouseEventArgs args)
+        {
+            if (args.Button == MouseButtons.Left)
+            {
+                if (!_buttonDown)
+                {
+                    _buttonDown = true;
+                    _startingLocation = new Point(Cursor.Position.X - SystemInformation.VirtualScreen.Left,
+                        Cursor.Position.Y - SystemInformation.VirtualScreen.Top);
+                    _clickForm.MouseDown -= MouseDownEventHandler;
+                }
+            }
+        }
+
+        private void MouseUpEventHandler(object sender, MouseEventArgs args)
+        {
+            if (args.Button == MouseButtons.Left && _buttonDown)
+            {
+                _success = true;
+                _clickForm.MouseUp -= MouseUpEventHandler;
+            }
+        }
+
+        // TODO: tidy _clickForm hack - probably cant remove but at least tidy it
+        private Form _clickForm;
+        public void Explode(Action<bool, Rectangle> implosionCallback)
+        {
+            Location = new Point(SystemInformation.VirtualScreen.Left, SystemInformation.VirtualScreen.Top);
+            Size = new Size(SystemInformation.VirtualScreen.Width, SystemInformation.VirtualScreen.Height);
+
+            Show();
+            Task.Factory.StartNew(() => DrawSelection(implosionCallback));
+
+            KeyDown += Cancel;
+            CreateClickForm();
+        }
+
+        private void CreateClickForm()
+        {
+            _clickForm = new Form();
+            _clickForm.FormBorderStyle = FormBorderStyle.None;
+            _clickForm.MouseDown += MouseDownEventHandler;
+            _clickForm.MouseUp += MouseUpEventHandler;
+
+            _clickForm.Show();
+            _clickForm.Location = Location;
+            _clickForm.Size = Size;
+            _clickForm.Opacity = 0.01d;
+        }
+
+        public void Implode()
+        {
+            Location = new Point(-5000, -5000);
+            Size = new Size(0, 0);
+
+            _clickForm.Close();
+        }
+
+        // TODO: Better management of state between threads
+        // TODO: remove duplication
+        private Point _startingLocation;
+        private void DrawSelection(Action<bool, Rectangle> callback)
+        {
+            while (!_cancel && !_success)
+            {
+                if (_buttonDown)
+                {
+                    Invoke(() => DrawRect(_startingLocation,
+                                new Point(Cursor.Position.X - SystemInformation.VirtualScreen.Left, Cursor.Position.Y - SystemInformation.VirtualScreen.Top)));
+                }
+                Thread.Sleep(50);
+            }
+            Invoke(Implode);
+
+            var endPosition = new Point(Cursor.Position.X - SystemInformation.VirtualScreen.Left, Cursor.Position.Y - SystemInformation.VirtualScreen.Top);
+            callback(_success, new Rectangle(Math.Min(_startingLocation.X, endPosition.X), Math.Min(_startingLocation.Y, endPosition.Y),
+                    Math.Abs(endPosition.X - _startingLocation.X), Math.Abs(endPosition.Y - _startingLocation.Y)));
+        }
+
+        private void DrawRect(Point topLeft, Point bottomRight)
+        {
+            using (var graphics = CreateGraphics())
+            {
+                var brush = new SolidBrush(Color.DimGray);
+                graphics.Clear(Color.Purple);
+                // TODO: backwards rect
+                graphics.FillRectangle(brush, Math.Min(topLeft.X, bottomRight.X), Math.Min(topLeft.Y, bottomRight.Y),
+                    Math.Abs(bottomRight.X - topLeft.X), Math.Abs(bottomRight.Y - topLeft.Y));
+                brush.Dispose();
+            }
+        }
 
         [STAThread]
         public static void Main(string[] args)

@@ -9,7 +9,7 @@ namespace aevvuploader.KeyHandling
 {
     class TestHandler : IInputHandler
     {
-        public void Handle(IVisibleForm form, KeyboardHook hook)
+        public void Handle(IScreenshottableForm form, KeyboardHook hook)
         {
             form.ToggleVisibility();
         }

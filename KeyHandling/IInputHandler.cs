@@ -4,7 +4,7 @@ namespace aevvuploader.KeyHandling
 {
     public interface IInputHandler
     {
-        void Handle(IVisibleForm form, KeyboardHook hook);
+        void Handle(IScreenshottableForm form, KeyboardHook hook);
         Keys TriggerKey { get; }
     }
 }

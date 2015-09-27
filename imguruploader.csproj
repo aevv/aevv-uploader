@@ -37,6 +37,9 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -52,7 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IO\Hotkey.cs" />
-    <Compile Include="IVisibleForm.cs" />
+    <Compile Include="IScreenshottableForm.cs" />
     <Compile Include="KeyHandling\CurrentWindowHandler.cs" />
     <Compile Include="KeyHandling\FullScreenHandler.cs" />
     <Compile Include="KeyHandling\IInputHandler.cs" />
@@ -78,7 +81,6 @@
     <EmbeddedResource Include="UploaderForm.resx">
       <DependentUpon>UploaderForm.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
