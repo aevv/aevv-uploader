@@ -1,0 +1,13 @@
+RewriteEngine on
+
+RewriteBase /
+
+RewriteRule ^([^.?])$ %{REQUEST_URI}.php [L]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.+)$ /$1.php [L,QSA]
+
+RewriteCond %{REQUEST_URI} /i/([0-9]+)
+RewriteRule i/([^/]+) /i/api/get.php?id=$1
