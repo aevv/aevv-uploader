@@ -48,7 +48,7 @@
     $_connection->Execute(
     "INSERT INTO LMCI_BLOB (lmci_upload, data) VALUES ($1, $2)", array($id, $base64));
 
-    echo PushStatus::$Success;
+    echo PushStatus::$Success . "," . $id;
   }
 
   function GetUserByKey($_connection, $key)  {
