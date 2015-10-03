@@ -22,6 +22,10 @@
 			return new PGReader(pg_query($this->_connection, $sql));
 		}
 
+		public function QueryParams($sql, $params) {
+			return new PGReader(pg_query_params($this->_connection, $sql, $params));
+		}
+
 		public function Execute($sql, $params) {
 			pg_prepare($this->_connection, "test", $sql);
 			pg_execute($this->_connection, "test", $params);

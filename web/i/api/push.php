@@ -52,7 +52,8 @@
   }
 
   function GetUserByKey($_connection, $key)  {
-    $user = $_connection->Query("SELECT * FROM LMCI_USER WHERE KEY = '$key'")->GetNext();
+    $user = $_connection->Query("SELECT * FROM lmci_user u
+      INNER JOIN lmci_key k on U.id = k.lmci_user WHERE KEY = '$key'")->GetNext();
     if ($user) {
       return $user[0];
     }
