@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
 using aevvuploader.Network;
@@ -12,6 +13,9 @@ namespace aevvuploader.KeyHandling
         private UploadQueue _queue;
         public void Handle(IInvisibleForm form, KeyboardHook hook, UploadQueue queue)
         {
+            if (form == null) throw new ArgumentNullException(nameof(form));
+            if (hook == null) throw new ArgumentNullException(nameof(hook));
+            if (queue == null) throw new ArgumentNullException(nameof(queue));
             if (!form.Visible)
             {
                 _queue = queue;
@@ -23,13 +27,14 @@ namespace aevvuploader.KeyHandling
 
         private void CaptureArea(bool success, Rectangle area)
         {
+            if(area == null)
+                throw new ArgumentNullException(nameof(area));
             if (!success)
             {
                 return;
             }
 
-            var capture = new ScreenshotCreator();
-            var bitmap = capture.GetArea(area);
+            var bitmap = ScreenshotCreator.GetArea(area);
 
             _queue?.QueueImage(bitmap);
         }

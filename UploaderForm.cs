@@ -48,6 +48,7 @@ namespace aevvuploader
 
         public void SuccessfulUpload(string url)
         {
+            if (string.IsNullOrEmpty(url)) throw new ArgumentNullException(nameof(url));
             Invoke(() => UploadComplete(url));
         }
 
@@ -73,18 +74,20 @@ namespace aevvuploader
 
         public void Invoke(Action action)
         {
+            if (action == null) throw new ArgumentNullException(nameof(action));
             if (InvokeRequired)
             {
-                Invoke(new Invoker(() => action()));
+                Invoke(new Invoker(() => action?.Invoke()));
             }
             else
             {
-                action();
+                action?.Invoke();
             }
         }
 
         public void Explode(Action<bool, Rectangle> implosionCallback)
         {
+            if (implosionCallback == null) throw new ArgumentNullException(nameof(implosionCallback));
             Location = new Point(SystemInformation.VirtualScreen.Left, SystemInformation.VirtualScreen.Top);
             Size = new Size(SystemInformation.VirtualScreen.Width, SystemInformation.VirtualScreen.Height);
 
@@ -113,15 +116,17 @@ namespace aevvuploader
         private void ConfigureTrayIcon()
         {
             _trayMenu = new ContextMenu();
-            _trayMenu.MenuItems.Add("Exit", (sender, args) => Application.Exit());
-            _trayIcon = new NotifyIcon();
-            _trayIcon.Text = "aevvuploader";
-            _trayIcon.Icon = new Icon(SystemIcons.Exclamation, 40, 40);
-
-            _trayIcon.ContextMenu = _trayMenu;
-            _trayIcon.Visible = true;
+            _trayMenu.MenuItems.Add(nameof(Exit), (sender, args) => Application.Exit());
+            _trayIcon = new NotifyIcon
+            {
+                Text = nameof(aevvuploader),
+                Icon = new Icon(SystemIcons.Exclamation, 40, 40),
+                ContextMenu = _trayMenu,
+                Visible = true
+            };
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", MessageId = nameof(_hook))]
         protected override void Dispose(bool isDisposing)
         {
             if (isDisposing)
@@ -134,6 +139,8 @@ namespace aevvuploader
 
         private void UploaderForm_Shown(object sender, EventArgs e)
         {
+            if (sender == null) throw new ArgumentNullException(nameof(sender));
+            if (e == null) throw new ArgumentNullException(nameof(e));
             if (_firstTimeShown)
             {
                 Shown -= UploaderForm_Shown;
@@ -144,6 +151,8 @@ namespace aevvuploader
 
         private void Cancel(object sender, KeyEventArgs args)
         {
+            if (sender == null) throw new ArgumentNullException(nameof(sender));
+            if (args == null) throw new ArgumentNullException(nameof(args));
             if (args.KeyCode == Keys.Escape)
             {
                 KeyDown -= Cancel;
@@ -159,20 +168,21 @@ namespace aevvuploader
 
         private void MouseDownEventHandler(object sender, MouseEventArgs args)
         {
-            if (args.Button == MouseButtons.Left)
+            if (sender == null) throw new ArgumentNullException(nameof(sender));
+            if (args == null) throw new ArgumentNullException(nameof(args));
+            if (args.Button == MouseButtons.Left && !_buttonDown)
             {
-                if (!_buttonDown)
-                {
-                    _buttonDown = true;
-                    _startingLocation = new Point(Cursor.Position.X - SystemInformation.VirtualScreen.Left,
-                        Cursor.Position.Y - SystemInformation.VirtualScreen.Top);
-                    _clickForm.MouseDown -= MouseDownEventHandler;
-                }
+                _buttonDown = true;
+                _startingLocation = new Point(Cursor.Position.X - SystemInformation.VirtualScreen.Left,
+                    Cursor.Position.Y - SystemInformation.VirtualScreen.Top);
+                _clickForm.MouseDown -= MouseDownEventHandler;
             }
         }
 
         private void MouseUpEventHandler(object sender, MouseEventArgs args)
         {
+            if (sender == null) throw new ArgumentNullException(nameof(sender));
+            if (args == null) throw new ArgumentNullException(nameof(args));
             if (args.Button == MouseButtons.Left && _buttonDown)
             {
                 _success = true;
@@ -183,17 +193,20 @@ namespace aevvuploader
         // TODO: tidy _clickForm hack - probably cant remove but at least tidy it
         private void CreateClickForm()
         {
-            _clickForm = new Form();
-            _clickForm.FormBorderStyle = FormBorderStyle.None;
+            _clickForm = new Form
+            {
+                FormBorderStyle = FormBorderStyle.None,
+                Location = Location,
+                Size = Size,
+                Opacity = 0.01d,
+                Cursor = Cursors.SizeAll
+            };
+
             _clickForm.MouseDown += MouseDownEventHandler;
             _clickForm.MouseUp += MouseUpEventHandler;
 
             _clickForm.Show();
-            _clickForm.Location = Location;
-            _clickForm.Size = Size;
-            _clickForm.Opacity = 0.01d;
-
-            _clickForm.Cursor = Cursors.SizeAll;
+            
         }
 
         public void Implode()
@@ -210,6 +223,7 @@ namespace aevvuploader
         // TODO: remove duplication
         private void DrawSelection(Action<bool, Rectangle> callback)
         {
+            if (callback == null) throw new ArgumentNullException(nameof(callback));
             while (!_cancel && !_success)
             {
                 if (_buttonDown)
@@ -222,7 +236,7 @@ namespace aevvuploader
             Invoke(Implode);
 
             var endPosition = new Point(Cursor.Position.X - SystemInformation.VirtualScreen.Left, Cursor.Position.Y - SystemInformation.VirtualScreen.Top);
-            callback(_success, new Rectangle(Math.Min(_startingLocation.X, endPosition.X), Math.Min(_startingLocation.Y, endPosition.Y),
+            callback?.Invoke(_success, new Rectangle(Math.Min(_startingLocation.X, endPosition.X), Math.Min(_startingLocation.Y, endPosition.Y),
                 Math.Abs(endPosition.X - _startingLocation.X), Math.Abs(endPosition.Y - _startingLocation.Y)));
         }
 
@@ -239,15 +253,20 @@ namespace aevvuploader
         }
 
         [STAThread]
-        public static void Main(string[] args)
+        public static void Main()
         {
-            Application.Run(new UploaderForm());
+            using (var uploaderForm = new UploaderForm())
+            {
+                Application.Run(uploaderForm);
+            }
         }
 
         private delegate void Invoker();
 
         private void UploaderForm_FormClosed(object sender, FormClosedEventArgs e)
         {
+            if (sender == null) throw new ArgumentNullException(nameof(sender));
+            if (e == null) throw new ArgumentNullException(nameof(e));
             _hook.Dispose();
         }
     }

@@ -14,18 +14,20 @@ namespace aevvuploader
 
         public UploadResultHandler(IInvisibleForm form)
         {
+            if (form == null) throw new ArgumentNullException(nameof(form));
             _form = form;
         }
 
         public void HandleResult(string result)
         {
+            if (string.IsNullOrEmpty(result)) throw new ArgumentNullException(nameof(result));
             // TODO: real response
 
             var values = result.Split(',').ToIntArray();
 
             if (values[0] == 1)
             {
-                int id = values[1];
+                var id = values[1];
                 var url = $"http://aevv.net/i/{id}";
 
                 _form.SuccessfulUpload(url);

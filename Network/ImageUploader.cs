@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Web.UI.WebControls;
 using aevvuploader.Extensions;
 
 namespace aevvuploader.Network
@@ -14,6 +15,7 @@ namespace aevvuploader.Network
 
         public string UploadSync(Bitmap bitmap)
         {
+            if (bitmap == null) throw new ArgumentNullException(nameof(bitmap));
             var bitmapBytes = bitmap.ToPngByteArray();
 
             lock (_sync)
@@ -23,68 +25,74 @@ namespace aevvuploader.Network
                 {
                     {"key", "aevv"}
                 };
-
-                // TODO: config or whatever
-                try
                 {
                     return UploadFile("http://aevv.net/i/api/push", bitmapBytes, "upload", "image/png", nvc);
                 }
-                catch (Exception)
-                {
-                    // TODO: logging
-                }
+                //TODO: Consider reading MSDN Documentation about how to use Try...Catch => http://msdn.microsoft.com/en-us/library/0yd65esw.aspx
 
                 // TODO: json responses
                 return "0,0";
             }
         }
 
-        private string UploadFile(string url, byte[] file, string paramName, string contentType, NameValueCollection nvc)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
+        private static string UploadFile(string url, byte[] file, string paramName, string contentType, NameValueCollection nvc)
         {
-            string boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
-            byte[] boundaryBytes = Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
+            if (string.IsNullOrEmpty(url)) throw new ArgumentNullException(nameof(url));
+            if(file == null) throw new ArgumentNullException(nameof(file));
+            if(string.IsNullOrEmpty(paramName))throw new ArgumentNullException(nameof(paramName));
+            if(string.IsNullOrEmpty(contentType)) throw new ArgumentNullException(nameof(contentType));
+            if(nvc == null) throw  new ArgumentNullException(nameof(nvc));
 
-            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
+            var boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
+            var boundaryBytes = Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
+
+            var webRequest = (HttpWebRequest)WebRequest.Create(url);
             webRequest.ContentType = "multipart/form-data; boundary=" + boundary;
             webRequest.Method = "POST";
             webRequest.KeepAlive = true;
             webRequest.Credentials = CredentialCache.DefaultCredentials;
 
-            Stream requestStream = webRequest.GetRequestStream();
+            var requestStream = webRequest.GetRequestStream();
 
-            string formdataTemplate = "Content-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}";
+            var formdataTemplate = "Content-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}";
             foreach (string key in nvc.Keys)
             {
                 requestStream.Write(boundaryBytes, 0, boundaryBytes.Length);
-                string formItem = string.Format(formdataTemplate, key, nvc[key]);
-                byte[] formItemBytes = Encoding.UTF8.GetBytes(formItem);
+                var formItem = string.Format(formdataTemplate, key, nvc[key]);
+                var formItemBytes = Encoding.UTF8.GetBytes(formItem);
                 requestStream.Write(formItemBytes, 0, formItemBytes.Length);
             }
             requestStream.Write(boundaryBytes, 0, boundaryBytes.Length);
 
             // TODO: filename if exists
-            string header = $"Content-Disposition: form-data; name=\"{paramName}\"; filename=\"test\"\r\nContent-Type: {contentType}\r\n\r\n";
-            byte[] headerBytes = Encoding.UTF8.GetBytes(header);
+            var header = $"Content-Disposition: form-data; name=\"{paramName}\"; filename=\"test\"\r\nContent-Type: {contentType}\r\n\r\n";
+            var headerBytes = Encoding.UTF8.GetBytes(header);
             requestStream.Write(headerBytes, 0, headerBytes.Length);
 
-            var byteStream = new MemoryStream(file);
-            byte[] buffer = new byte[4096];
-            int bytesRead;
-            while ((bytesRead = byteStream.Read(buffer, 0, buffer.Length)) != 0)
+            using (
+            var byteStream = new MemoryStream(file))
             {
-                requestStream.Write(buffer, 0, bytesRead);
-            }
-            byteStream.Close();
+                var buffer = new byte[4096];
+                int bytesRead;
+                while ((bytesRead = byteStream.Read(buffer, 0, buffer.Length)) != 0)
+                {
+                    requestStream.Write(buffer, 0, bytesRead);
+                }
+                byteStream.Close();
 
-            byte[] trailer = Encoding.ASCII.GetBytes("\r\n--" + boundary + "--\r\n");
-            requestStream.Write(trailer, 0, trailer.Length);
-            requestStream.Close();
+                var trailer = Encoding.ASCII.GetBytes("\r\n--" + boundary + "--\r\n");
+                requestStream.Write(trailer, 0, trailer.Length);
+                requestStream.Close();
 
-            using (var wresp = webRequest.GetResponse())
-            {
-                Stream responseStream = wresp.GetResponseStream();
-                StreamReader responseReader = new StreamReader(responseStream);
-                return responseReader.ReadToEnd();
+                using (var wresp = webRequest.GetResponse())
+                {
+                    var responseStream = wresp.GetResponseStream();
+                    using (var responseReader = new StreamReader(responseStream))
+                    {
+                        return responseReader.ReadToEnd();
+                    }
+                }
             }
         }
     }
