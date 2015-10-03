@@ -3,7 +3,7 @@ using System.Drawing;
 
 namespace aevvuploader
 {
-    public interface IScreenshottableForm
+    public interface IInvisibleForm
     {
         bool Visible { get; }
         Point Location { get; set; }
@@ -13,5 +13,7 @@ namespace aevvuploader
         void Hide();
         void Explode(Action<bool, Rectangle> implosionCallback);
         void Invoke(Action action);
+        void Exit();
+        void SuccessfulUpload(string url);
     }
 }

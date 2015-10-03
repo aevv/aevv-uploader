@@ -1,5 +1,6 @@
 ﻿using System.Drawing.Imaging;
 using System.Windows.Forms;
+using aevvuploader.Network;
 using aevvuploader.ScreenCapturing;
 using imguruploader.IO;
 
@@ -7,12 +8,12 @@ namespace aevvuploader.KeyHandling
 {
     internal class FullScreenHandler : IInputHandler
     {
-        public void Handle(IScreenshottableForm form, KeyboardHook hook)
+        public void Handle(IInvisibleForm form, KeyboardHook hook, UploadQueue queue)
         {
             var capture = new ScreenshotCreator();
             var fullScreen = capture.GetAllMonitors();
 
-            fullScreen.Save("C:\\Temp\\Image2.png", ImageFormat.Png);
+            queue.QueueImage(fullScreen);
         }
 
         public Keys TriggerKey => Keys.D3;

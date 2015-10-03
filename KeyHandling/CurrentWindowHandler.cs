@@ -1,5 +1,6 @@
 ﻿using System.Drawing.Imaging;
 using System.Windows.Forms;
+using aevvuploader.Network;
 using aevvuploader.ScreenCapturing;
 using imguruploader.IO;
 
@@ -7,13 +8,13 @@ namespace aevvuploader.KeyHandling
 {
     internal class CurrentWindowHandler : IInputHandler
     {
-        public void Handle(IScreenshottableForm form, KeyboardHook hook)
+        public void Handle(IInvisibleForm form, KeyboardHook hook, UploadQueue queue)
         {
             var capture = new ScreenshotCreator();
 
             var windowBitmap = capture.GetActiveWindow();
 
-            windowBitmap.Save("C:\\Temp\\Active.png", ImageFormat.Png);
+            queue.QueueImage(windowBitmap);
         }
 
         public Keys TriggerKey => Keys.D2;

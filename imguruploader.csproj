@@ -43,6 +43,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -54,18 +55,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\Extensions.cs" />
     <Compile Include="IO\Hotkey.cs" />
-    <Compile Include="IScreenshottableForm.cs" />
+    <Compile Include="IInvisibleForm.cs" />
     <Compile Include="KeyHandling\CurrentWindowHandler.cs" />
+    <Compile Include="KeyHandling\ExitKeyHandler.cs" />
     <Compile Include="KeyHandling\FullScreenHandler.cs" />
     <Compile Include="KeyHandling\IInputHandler.cs" />
     <Compile Include="KeyHandling\KeyHandler.cs" />
     <Compile Include="KeyHandling\SelectedAreaHandler.cs" />
     <Compile Include="KeyHandling\SingleMonitorHandler.cs" />
+    <Compile Include="Network\ImageUploader.cs" />
+    <Compile Include="Network\UploadQueue.cs" />
     <Compile Include="ScreenCapturing\ScreenshotCreator.cs" />
     <Compile Include="UploaderForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="UploadResultHandler.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

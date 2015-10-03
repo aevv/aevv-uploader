@@ -1,4 +1,5 @@
 ﻿using System.Windows.Forms;
+using aevvuploader.Network;
 using imguruploader.IO;
 
 namespace aevvuploader.KeyHandling
@@ -6,6 +7,6 @@ namespace aevvuploader.KeyHandling
     public interface IInputHandler
     {
         Keys TriggerKey { get; }
-        void Handle(IScreenshottableForm form, KeyboardHook hook);
+        void Handle(IInvisibleForm form, KeyboardHook hook, UploadQueue queue);
     }
 }

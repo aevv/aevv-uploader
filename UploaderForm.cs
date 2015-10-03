@@ -4,11 +4,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using aevvuploader.KeyHandling;
+using aevvuploader.Network;
 using imguruploader.IO;
 
 namespace aevvuploader
 {
-    internal class UploaderForm : Form, IScreenshottableForm
+    internal class UploaderForm : Form, IInvisibleForm
     {
         public delegate void ActivateDelegate();
 
@@ -28,14 +29,35 @@ namespace aevvuploader
 
         public UploaderForm()
         {
-            _handler = new KeyHandler(this);
+            ConfigureInvisibleForm();
+            ConfigureTrayIcon();
+
+            _handler = new KeyHandler(this, new UploadQueue(new ImageUploader(), new UploadResultHandler(this)));
             _hook = new KeyboardHook();
             _handler.RegisterKeys(_hook);
             _hook.KeyPressed += _handler.Handle;
 
-            ConfigureInvisibleForm();
-            ConfigureTrayIcon();
+            FormClosed += UploaderForm_FormClosed;
         }
+
+        public void Exit()
+        {
+            Close();
+            Environment.Exit(0);
+        }
+
+        public void SuccessfulUpload(string url)
+        {
+            Invoke(() => UploadComplete(url));
+        }
+
+        private void UploadComplete(string url)
+        {
+            Clipboard.SetText(url);
+            _trayIcon.BalloonTipText = url;
+            _trayIcon.ShowBalloonTip(1000);
+        }
+
 
         public void ToggleVisibility()
         {
@@ -223,5 +245,10 @@ namespace aevvuploader
         }
 
         private delegate void Invoker();
+
+        private void UploaderForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            _hook.Dispose();
+        }
     }
 }
