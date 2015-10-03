@@ -168,3 +168,4 @@ pip-log.txt
 [Ss]ecrets.php
 /Web/PSQL/CreateSchema.psql
 config.json
+packages
