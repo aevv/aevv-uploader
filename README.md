@@ -1,4 +1,4 @@
-aevv-uploader
+lmci-uploader
 ==============
 
 c# app for uploading screenshots.
