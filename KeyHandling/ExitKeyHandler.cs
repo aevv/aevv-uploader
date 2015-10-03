@@ -15,6 +15,9 @@ namespace aevvuploader.KeyHandling
 
         public void Handle(IInvisibleForm form, KeyboardHook hook, UploadQueue queue)
         {
+            if (form == null) throw new ArgumentNullException(nameof(form));
+            if (hook == null) throw new ArgumentNullException(nameof(hook));
+            if (queue == null) throw new ArgumentNullException(nameof(queue));
             form.Exit();
         }
     }

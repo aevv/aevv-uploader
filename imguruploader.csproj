@@ -63,15 +63,20 @@
     <Compile Include="Extensions\Extensions.cs" />
     <Compile Include="IO\Hotkey.cs" />
     <Compile Include="IInvisibleForm.cs" />
+    <Compile Include="IO\KeyPressedEventArgs.cs" />
+    <Compile Include="IO\NativeMethods.cs" />
     <Compile Include="KeyHandling\CurrentWindowHandler.cs" />
+    <Compile Include="KeyHandling\ModifierKeys.cs" />
     <Compile Include="KeyHandling\ExitKeyHandler.cs" />
     <Compile Include="KeyHandling\FullScreenHandler.cs" />
     <Compile Include="KeyHandling\IInputHandler.cs" />
     <Compile Include="KeyHandling\KeyHandler.cs" />
+    <Compile Include="KeyHandling\Rect.cs" />
     <Compile Include="KeyHandling\SelectedAreaHandler.cs" />
     <Compile Include="KeyHandling\SingleMonitorHandler.cs" />
     <Compile Include="Network\ImageUploader.cs" />
     <Compile Include="Network\UploadQueue.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScreenCapturing\ScreenshotCreator.cs" />
     <Compile Include="UploaderForm.cs">
       <SubType>Form</SubType>

@@ -1,14 +1,16 @@
-﻿using System;
+﻿using imguruploader.IO;
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using aevvuploader.KeyHandling;
 
 namespace aevvuploader.ScreenCapturing
 {
-    internal class ScreenshotCreator
+    internal static  class ScreenshotCreator
     {
-        public Bitmap GetAllMonitors()
+        public static Bitmap GetAllMonitors()
         {
             var bitmap = new Bitmap(SystemInformation.VirtualScreen.Width, SystemInformation.VirtualScreen.Height, PixelFormat.Format32bppArgb);
             using (var graphics = Graphics.FromImage(bitmap))
@@ -19,8 +21,9 @@ namespace aevvuploader.ScreenCapturing
             }
         }
 
-        public Bitmap GetSingleMonitor(Screen screen)
+        public static Bitmap GetSingleMonitor(Screen screen)
         {
+            if (screen == null) throw new ArgumentNullException(nameof(screen));
             var bitmap = new Bitmap(screen.Bounds.Width, screen.Bounds.Height, PixelFormat.Format32bppArgb);
             using (var graphics = Graphics.FromImage(bitmap))
             {
@@ -29,7 +32,7 @@ namespace aevvuploader.ScreenCapturing
             }
         }
 
-        public Bitmap GetSingleMonitor(int monitorNumber)
+        public static Bitmap GetSingleMonitor(int monitorNumber)
         {
             var screen = Screen.AllScreens[monitorNumber];
 
@@ -41,11 +44,12 @@ namespace aevvuploader.ScreenCapturing
             }
         }
 
-        public Bitmap GetActiveWindow()
+        public static Bitmap GetActiveWindow()
         {
-            var activeWindow = GetForegroundWindow();
+            var activeWindow = NativeMethods.GetForegroundWindow();
             Rect rect;
-            GetWindowRect(activeWindow, out rect);
+            
+            NativeMethods.GetWindowRect(activeWindow, out rect);
 
             if (rect.Top != rect.Bottom && rect.Left != rect.Right)
             {
@@ -63,7 +67,7 @@ namespace aevvuploader.ScreenCapturing
             return null;
         }
 
-        public Bitmap GetArea(Rectangle area)
+        public static Bitmap GetArea(Rectangle area)
         {
             var bitmap = new Bitmap(area.Width, area.Height, PixelFormat.Format32bppArgb);
             using (var graphics = Graphics.FromImage(bitmap))
@@ -75,20 +79,7 @@ namespace aevvuploader.ScreenCapturing
             }
         }
 
-        [DllImport("user32.dll")]
-        private static extern IntPtr GetForegroundWindow();
 
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool GetWindowRect(IntPtr hWnd, out Rect lpRect);
 
-        [StructLayout(LayoutKind.Sequential)]
-        public struct Rect
-        {
-            public int Left;
-            public int Top;
-            public int Right;
-            public int Bottom;
-        }
     }
 }
