@@ -1,4 +1,4 @@
-aevv-uploader
+lmci-uploader
 ==============
 
 c# app for uploading screenshots.
@@ -16,8 +16,8 @@ follow up from this one time i hacked an [existing](https://github.com/aevv/aevv
 Todo
 ----
 
-* Backend API (php? node? asp.net?)
-* Storage
+* Backend API (dev version in php)
+* Storage (psql blobs in text columns, would like to use redis or so but barrier to entry with php)
 * Front end website
 * Client UI
 * Misc usability things
