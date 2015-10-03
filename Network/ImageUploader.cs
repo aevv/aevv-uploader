@@ -12,6 +12,12 @@ namespace aevvuploader.Network
     public class ImageUploader
     {
         private readonly object _sync = new object();
+        private readonly Config _config;
+
+        public ImageUploader(Config config)
+        {
+            _config = config;
+        }
 
         public string UploadSync(Bitmap bitmap)
         {
@@ -23,7 +29,7 @@ namespace aevvuploader.Network
                 // TODO: credential management
                 var nvc = new NameValueCollection
                 {
-                    {"key", "aevv"}
+                    {"key", _config.ApiKey}
                 };
                 {
                     return UploadFile("http://aevv.net/i/api/push", bitmapBytes, "upload", "image/png", nvc);

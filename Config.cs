@@ -8,8 +8,9 @@ using Newtonsoft.Json;
 
 namespace aevvuploader
 {
-    class Config
+    public class Config
     {
+        // TODO: Refactor so this class can be made immutable
         public string ApiKey { get; set; }
 
         public void Save(string fileName)

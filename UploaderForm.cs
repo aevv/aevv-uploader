@@ -18,6 +18,8 @@ namespace aevvuploader
         // Keep reference to this alive due to unmanaged memory bla bla
         private readonly KeyHandler _handler;
         private readonly KeyboardHook _hook;
+        private readonly Config _config;
+
         private bool _buttonDown;
         private bool _cancel;
         private Form _clickForm;
@@ -32,7 +34,14 @@ namespace aevvuploader
             ConfigureInvisibleForm();
             ConfigureTrayIcon();
 
-            _handler = new KeyHandler(this, new UploadQueue(new ImageUploader(), new UploadResultHandler(this)));
+            _config = Config.Load("config.json");
+            if (string.IsNullOrEmpty(_config.ApiKey))
+            {
+                // TODO: Api key management
+                // _config.ApiKey = "";
+            }
+
+            _handler = new KeyHandler(this, new UploadQueue(new ImageUploader(_config), new UploadResultHandler(this)));
             _hook = new KeyboardHook();
             _handler.RegisterKeys(_hook);
             _hook.KeyPressed += _handler.Handle;
@@ -42,6 +51,7 @@ namespace aevvuploader
 
         public void Exit()
         {
+            _config.Save("config.json");
             Close();
             Environment.Exit(0);
         }
@@ -77,11 +87,11 @@ namespace aevvuploader
             if (action == null) throw new ArgumentNullException(nameof(action));
             if (InvokeRequired)
             {
-                Invoke(new Invoker(() => action?.Invoke()));
+                Invoke(new Invoker(action.Invoke));
             }
             else
             {
-                action?.Invoke();
+                action.Invoke();
             }
         }
 
@@ -206,7 +216,7 @@ namespace aevvuploader
             _clickForm.MouseUp += MouseUpEventHandler;
 
             _clickForm.Show();
-            
+
         }
 
         public void Implode()
