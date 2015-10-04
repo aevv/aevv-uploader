@@ -26,18 +26,17 @@ namespace aevvuploader.Network
 
             lock (_sync)
             {
-                // TODO: credential management
+                // TODO: credential management - relog/renew
                 var nvc = new NameValueCollection
                 {
                     {"key", _config.ApiKey}
                 };
-                {
-                    return UploadFile("http://aevv.net/i/api/push", bitmapBytes, "upload", "image/png", nvc);
-                }
-                //TODO: Consider reading MSDN Documentation about how to use Try...Catch => http://msdn.microsoft.com/en-us/library/0yd65esw.aspx
+
+                return UploadFile("http://aevv.net/i/api/push", bitmapBytes, "upload", "image/png", nvc);
+
+                // TODO: Consider reading MSDN Documentation about how to use Try...Catch => http://msdn.microsoft.com/en-us/library/0yd65esw.aspx
 
                 // TODO: json responses
-                return "0,0";
             }
         }
 
@@ -71,7 +70,7 @@ namespace aevvuploader.Network
             }
             requestStream.Write(boundaryBytes, 0, boundaryBytes.Length);
 
-            // TODO: filename if exists
+            // TODO: filename if exists, for manual upload
             var header = $"Content-Disposition: form-data; name=\"{paramName}\"; filename=\"test\"\r\nContent-Type: {contentType}\r\n\r\n";
             var headerBytes = Encoding.UTF8.GetBytes(header);
             requestStream.Write(headerBytes, 0, headerBytes.Length);

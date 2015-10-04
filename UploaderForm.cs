@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using aevvuploader.KeyHandling;
 using aevvuploader.Network;
+using aevvuploader.Properties;
 using imguruploader.IO;
 
 namespace aevvuploader
@@ -66,9 +68,14 @@ namespace aevvuploader
         {
             Clipboard.SetText(url);
             _trayIcon.BalloonTipText = url;
+            _trayIcon.BalloonTipClicked += (sender, args) => { OpenUrl(url); };
             _trayIcon.ShowBalloonTip(1000);
         }
 
+        private void OpenUrl(string url)
+        {
+            Process.Start(url);
+        }
 
         public void ToggleVisibility()
         {
@@ -126,11 +133,11 @@ namespace aevvuploader
         private void ConfigureTrayIcon()
         {
             _trayMenu = new ContextMenu();
-            _trayMenu.MenuItems.Add(nameof(Exit), (sender, args) => Application.Exit());
+            _trayMenu.MenuItems.Add(nameof(Exit), (sender, args) => Exit());
             _trayIcon = new NotifyIcon
             {
                 Text = nameof(aevvuploader),
-                Icon = new Icon(SystemIcons.Exclamation, 40, 40),
+                Icon = Resources.aevvhead,
                 ContextMenu = _trayMenu,
                 Visible = true
             };
