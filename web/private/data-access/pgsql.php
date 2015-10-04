@@ -27,8 +27,8 @@
 		}
 
 		public function Execute($sql, $params) {
-			pg_prepare($this->_connection, "test", $sql);
-			pg_execute($this->_connection, "test", $params);
+			pg_prepare($this->_connection, $sql, $sql);
+			pg_execute($this->_connection, $sql, $params);
 		}
 
 		public function Close() {

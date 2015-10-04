@@ -5,6 +5,8 @@
     public static $UnknownFailure = -1;
     public static $InvalidKey = -2;
     public static $NoUpload = -3;
+    public static $BadKey = -4;
+    public static $ExpiredKey = -5;
   }
 
   require_once("../../private/data-access/pgsql.php");
@@ -17,6 +19,7 @@
 
   function Process($_connection)  {
     $key = GetAPIKey();
+    ValidateKey($_connection, $key);
     $user = GetUserByKey($_connection, $key);
 
     $image = GetValidImage($_connection, $user);
@@ -30,6 +33,22 @@
     }
 
     return pg_escape_string ($_POST['key']);
+  }
+
+  function ValidateKey($_connection, $key) {
+    $key = $_connection->QueryParams("SELECT expire FROM lmci_key WHERE key = $1", array($key))
+      ->GetNext();
+
+    if (!$key) {
+      echo PushStatus::$InvalidKey;
+      exit();
+    }
+
+    $expire = $key[0];
+    if ($expire < date("Y-m-d H:i:s")) {
+      echo PushStatus::$ExpiredKey;
+      exit();
+    }
   }
 
   function GetValidImage($_connection, $user) {
@@ -54,8 +73,12 @@
   function GetUserByKey($_connection, $key)  {
     $user = $_connection->Query("SELECT * FROM lmci_user u
       INNER JOIN lmci_key k on U.id = k.lmci_user WHERE KEY = '$key'")->GetNext();
+
     if ($user) {
       return $user[0];
     }
+
+    echo PushStatus::$BadKey;
+    exit();
   }
 ?>

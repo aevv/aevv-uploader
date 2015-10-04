@@ -36,12 +36,9 @@ namespace aevvuploader
             ConfigureInvisibleForm();
             ConfigureTrayIcon();
 
-            _config = Config.Load("config.json");
-            if (string.IsNullOrEmpty(_config.ApiKey))
-            {
-                // TODO: Api key management
-                // _config.ApiKey = "";
-            }
+            var keyManager = new KeyManager();
+
+            _config = keyManager.Load();
 
             _handler = new KeyHandler(this, new UploadQueue(new ImageUploader(_config), new UploadResultHandler(this)));
             _hook = new KeyboardHook();

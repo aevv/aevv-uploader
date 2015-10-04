@@ -12,6 +12,11 @@ namespace aevvuploader
     {
         // TODO: Refactor so this class can be made immutable
         public string ApiKey { get; set; }
+        public string Username { get; set; }
+
+        // TODO: encrypt/hide in some way from disk - maybe sha256 this before send and assert all passwords handed to server
+        // are already sha256'd
+        public string Password { get; set; }
 
         public void Save(string fileName)
         {

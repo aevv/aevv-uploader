@@ -22,6 +22,7 @@ namespace aevvuploader
         {
             if (string.IsNullOrEmpty(result)) throw new ArgumentNullException(nameof(result));
             // TODO: real response
+            // TODO: handle key expired - attempt renew and reupload?
 
             var values = result.Split(',').ToIntArray();
 
