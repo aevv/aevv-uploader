@@ -17,10 +17,11 @@ follow up from this one time i hacked an [existing](https://github.com/aevv/aevv
 Todo
 ----
 
-* Backend API (dev version in php)
+* Backend API (dev version in php, call it v0, v1 will probably be full renaming and consistent response types. maybe look into a framework/library for this)
 * Storage (psql blobs in text columns, thumbnail generation deferred?)
 * Front end website
 * Client UI
 * Bulletproofing client/server
 * Misc usability things
 * SECURITY
+* Massive amounts of TODO comments littered among the code
