@@ -1,7 +1,7 @@
 lmci-uploader
 ==============
 
-C# app for uploading screenshots.
+c# app for uploading screenshots.
 
 Current (weak?) implementation runs invisible with no config. Ctrl+shift+hotkey where hotkey is:
 * 1 - Take screenshot of monitor mouse is on
