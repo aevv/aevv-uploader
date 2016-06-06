@@ -18,6 +18,8 @@ namespace aevvuploader
         // are already sha256'd
         public string Password { get; set; }
 
+        public string BaseUrl { get; set; }
+
         public void Save(string fileName)
         {
             using (var writer = new StreamWriter(fileName, false))

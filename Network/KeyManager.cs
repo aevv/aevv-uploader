@@ -16,7 +16,7 @@ namespace aevvuploader.Network
 
             using (var webClient = new WebClient())
             {
-                var result = webClient.UploadValues("http://aevv.net/i/api/check", new NameValueCollection
+                var result = webClient.UploadValues(config.BaseUrl + "api/check", new NameValueCollection
                 {
                     {"key", config.ApiKey}
                 });
@@ -25,7 +25,7 @@ namespace aevvuploader.Network
 
                 if (isKeyValid == 1)
                 {
-                    result = webClient.UploadValues("http://aevv.net/i/api/renew", new NameValueCollection
+                    result = webClient.UploadValues(config.BaseUrl + "api/renew", new NameValueCollection
                     {
                         {"username", config.Username},
                         {"password", config.Password }

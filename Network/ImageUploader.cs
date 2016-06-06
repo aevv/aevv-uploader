@@ -32,22 +32,21 @@ namespace aevvuploader.Network
                     {"key", _config.ApiKey}
                 };
 
-                return UploadFile("http://aevv.net/i/api/push", bitmapBytes, "upload", "image/png", nvc);
-
-                // TODO: Consider reading MSDN Documentation about how to use Try...Catch => http://msdn.microsoft.com/en-us/library/0yd65esw.aspx
+                return UploadFile(_config.BaseUrl + "api/push", bitmapBytes, "upload", "image/png", nvc);
 
                 // TODO: json responses
             }
         }
 
+        // TODO: Refactor this mess - WebClient?
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
         private static string UploadFile(string url, byte[] file, string paramName, string contentType, NameValueCollection nvc)
         {
             if (string.IsNullOrEmpty(url)) throw new ArgumentNullException(nameof(url));
-            if(file == null) throw new ArgumentNullException(nameof(file));
-            if(string.IsNullOrEmpty(paramName))throw new ArgumentNullException(nameof(paramName));
-            if(string.IsNullOrEmpty(contentType)) throw new ArgumentNullException(nameof(contentType));
-            if(nvc == null) throw  new ArgumentNullException(nameof(nvc));
+            if (file == null) throw new ArgumentNullException(nameof(file));
+            if (string.IsNullOrEmpty(paramName))throw new ArgumentNullException(nameof(paramName));
+            if (string.IsNullOrEmpty(contentType)) throw new ArgumentNullException(nameof(contentType));
+            if (nvc == null) throw  new ArgumentNullException(nameof(nvc));
 
             var boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
             var boundaryBytes = Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
@@ -75,8 +74,7 @@ namespace aevvuploader.Network
             var headerBytes = Encoding.UTF8.GetBytes(header);
             requestStream.Write(headerBytes, 0, headerBytes.Length);
 
-            using (
-            var byteStream = new MemoryStream(file))
+            using (var byteStream = new MemoryStream(file))
             {
                 var buffer = new byte[4096];
                 int bytesRead;

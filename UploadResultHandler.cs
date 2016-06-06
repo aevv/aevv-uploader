@@ -11,11 +11,15 @@ namespace aevvuploader
     public class UploadResultHandler
     {
         private readonly IInvisibleForm _form;
+        private readonly Config _config;
 
-        public UploadResultHandler(IInvisibleForm form)
+        public UploadResultHandler(IInvisibleForm form, Config config)
         {
             if (form == null) throw new ArgumentNullException(nameof(form));
+            if (config == null) throw new ArgumentNullException(nameof(config));
+
             _form = form;
+            _config = config;
         }
 
         public void HandleResult(string result)
@@ -29,7 +33,7 @@ namespace aevvuploader
             if (values[0] == 1)
             {
                 var id = values[1];
-                var url = $"http://aevv.net/i/{id}";
+                var url = $"{_config.BaseUrl}{id}";
 
                 _form.SuccessfulUpload(url);
             }

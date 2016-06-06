@@ -34,13 +34,13 @@ namespace aevvuploader
         public UploaderForm()
         {
             ConfigureInvisibleForm();
-            ConfigureTrayIcon();
+            ConfigureTrayMenu();
 
             var keyManager = new KeyManager();
 
             _config = keyManager.Load();
 
-            _handler = new KeyHandler(this, new UploadQueue(new ImageUploader(_config), new UploadResultHandler(this)));
+            _handler = new KeyHandler(this, new UploadQueue(new ImageUploader(_config), new UploadResultHandler(this, _config)));
             _hook = new KeyboardHook();
             _handler.RegisterKeys(_hook);
             _hook.KeyPressed += _handler.Handle;
@@ -64,6 +64,7 @@ namespace aevvuploader
         private void UploadComplete(string url)
         {
             Clipboard.SetText(url);
+            ConfigureTrayIcon();
             _trayIcon.BalloonTipText = url;
             _trayIcon.BalloonTipClicked += (sender, args) => { OpenUrl(url); };
             _trayIcon.ShowBalloonTip(1000);
@@ -127,10 +128,15 @@ namespace aevvuploader
             Shown += UploaderForm_Shown;
         }
 
-        private void ConfigureTrayIcon()
+        private void ConfigureTrayMenu()
         {
             _trayMenu = new ContextMenu();
             _trayMenu.MenuItems.Add(nameof(Exit), (sender, args) => Exit());
+            ConfigureTrayIcon();
+        }
+
+        private void ConfigureTrayIcon()
+        {
             _trayIcon = new NotifyIcon
             {
                 Text = nameof(aevvuploader),
@@ -250,7 +256,7 @@ namespace aevvuploader
             Invoke(Implode);
 
             var endPosition = new Point(Cursor.Position.X - SystemInformation.VirtualScreen.Left, Cursor.Position.Y - SystemInformation.VirtualScreen.Top);
-            callback?.Invoke(_success, new Rectangle(Math.Min(_startingLocation.X, endPosition.X), Math.Min(_startingLocation.Y, endPosition.Y),
+            callback.Invoke(_success, new Rectangle(Math.Min(_startingLocation.X, endPosition.X), Math.Min(_startingLocation.Y, endPosition.Y),
                 Math.Abs(endPosition.X - _startingLocation.X), Math.Abs(endPosition.Y - _startingLocation.Y)));
         }
 
