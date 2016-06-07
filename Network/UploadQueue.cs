@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace aevvuploader.Network
 {
@@ -36,26 +37,34 @@ namespace aevvuploader.Network
 
         private void Upload()
         {
+            Bitmap bitmap = null;
             // TODO: Cancellation
             while (true)
             {
-                Bitmap bitmap;
-                lock (_sync)
+                try
                 {
-                    if (_queue.Count == 0)
+                    lock (_sync)
                     {
-                        Thread.Sleep(100);
-                        continue;
+                        if (_queue.Count == 0)
+                        {
+                            Thread.Sleep(100);
+                            continue;
+                        }
+
+                        bitmap = _queue.Dequeue();
                     }
 
-                    bitmap = _queue.Dequeue();
+                    var result = _api.UploadSync(bitmap);
+
+                    _handler.HandleResult(result);
+
+                    Thread.Sleep(100);
                 }
-
-                var result = _api.UploadSync(bitmap);
-
-                _handler.HandleResult(result);
-
-                Thread.Sleep(100);
+                catch (Exception ex)
+                {
+                    // If we fail, try again
+                    _queue.Enqueue(bitmap);
+                }
             }
         }
     }

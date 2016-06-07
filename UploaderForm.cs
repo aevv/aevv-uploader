@@ -31,6 +31,7 @@ namespace aevvuploader
         private bool _success;
         private NotifyIcon _trayIcon;
         private ContextMenu _trayMenu;
+        private string _lastUrl;
 
         public UploaderForm()
         {
@@ -62,15 +63,15 @@ namespace aevvuploader
 
         private void UploadComplete(string url)
         {
+            _lastUrl = url;
             Clipboard.SetText(url);
             _trayIcon.BalloonTipText = url;
-            _trayIcon.BalloonTipClicked += (sender, args) => { OpenUrl(url); };
             _trayIcon.ShowBalloonTip(1000);
         }
 
-        private void OpenUrl(string url)
+        private void OpenUrl()
         {
-            Process.Start(url);
+            Process.Start(_lastUrl);
         }
 
         public void ToggleVisibility()
@@ -142,6 +143,8 @@ namespace aevvuploader
                 ContextMenu = _trayMenu,
                 Visible = true
             };
+
+            _trayIcon.BalloonTipClicked += (sender, args) => { OpenUrl(); };
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", MessageId = nameof(_hook))]

@@ -36,7 +36,7 @@ namespace aevvuploader.Network
             }
         }
 
-        public static async Task<string> Upload(string url, byte[] image, CookieContainer cookies)
+        public async Task<string> Upload(string url, byte[] image, CookieContainer cookies)
         {
             using (var handler = new HttpClientHandler { CookieContainer = cookies })
             using (var client = new HttpClient(handler))
@@ -46,9 +46,7 @@ namespace aevvuploader.Network
                 {
                     content.Add(new StreamContent(new MemoryStream(image)), "data", "upload.png");
 
-                    using (
-                       var message =
-                           await client.PostAsync(url, content))
+                    using (var message = await client.PostAsync(url, content))
                     {
                         return await message.Content.ReadAsStringAsync();
                     }
