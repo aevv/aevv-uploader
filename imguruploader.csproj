@@ -59,6 +59,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApiModels\LoginResult.cs" />
+    <Compile Include="ApiModels\UploadResult.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Extensions\Extensions.cs" />
     <Compile Include="IO\Hotkey.cs" />
@@ -74,8 +76,11 @@
     <Compile Include="KeyHandling\Rect.cs" />
     <Compile Include="KeyHandling\SelectedAreaHandler.cs" />
     <Compile Include="KeyHandling\SingleMonitorHandler.cs" />
+    <Compile Include="Network\CookieWebClient.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Network\ImageUploader.cs" />
-    <Compile Include="Network\KeyManager.cs" />
+    <Compile Include="Network\ServerApi.cs" />
     <Compile Include="Network\UploadQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScreenCapturing\ScreenshotCreator.cs" />

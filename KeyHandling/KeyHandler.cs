@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 using aevvuploader.Network;
 using imguruploader.IO;
@@ -9,16 +10,16 @@ namespace aevvuploader.KeyHandling
     public class KeyHandler
     {
         private readonly IInvisibleForm _form;
-        private readonly UploadQueue _queue;
+        private readonly Action<Bitmap> _callback;
         private readonly Dictionary<Keys, IInputHandler> _keyHandlers;
         private KeyboardHook _hook;
 
-        public KeyHandler(IInvisibleForm form, UploadQueue queue)
+        public KeyHandler(IInvisibleForm form, Action<Bitmap> callback)
         {
             if (form == null) throw new ArgumentNullException(nameof(form));
-            if (queue == null) throw new ArgumentNullException(nameof(queue));
+            if (callback == null) throw new ArgumentNullException(nameof(callback));
             _form = form;
-            _queue = queue;
+            _callback = callback;
             _keyHandlers = new Dictionary<Keys, IInputHandler>();
         }
 
@@ -28,7 +29,7 @@ namespace aevvuploader.KeyHandling
             if (args == null) throw new ArgumentNullException(nameof(args));
             if (_keyHandlers.ContainsKey(args.Key))
             {
-                _keyHandlers[args.Key].Handle(_form, _hook, _queue);
+                _keyHandlers[args.Key].Handle(_form, _hook, _callback);
             }
         }
 
@@ -37,6 +38,7 @@ namespace aevvuploader.KeyHandling
             if (hook == null) throw new ArgumentNullException(nameof(hook));
             _hook = hook;
             // TODO: Reflect service locator-y
+            // TODO: Config based
             _hook.RegisterHotKey(ModifierKeys.Control | ModifierKeys.Shift, Keys.D1);
             _keyHandlers.Add(Keys.D1, new SingleMonitorHandler());
 

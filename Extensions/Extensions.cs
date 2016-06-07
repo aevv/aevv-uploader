@@ -19,10 +19,5 @@ namespace aevvuploader.Extensions
                 return memoryStream.ToArray();
             }
         }
-
-        public static int[] ToIntArray(this string[] stringArray)
-        {
-            return stringArray.Select(x => Convert.ToInt32(x)).ToArray();
-        }
     }
 }

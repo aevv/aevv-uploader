@@ -48,7 +48,7 @@ namespace aevvuploader.ScreenCapturing
         {
             var activeWindow = NativeMethods.GetForegroundWindow();
             Rect rect;
-            
+
             NativeMethods.GetWindowRect(activeWindow, out rect);
 
             if (rect.Top != rect.Bottom && rect.Left != rect.Right)

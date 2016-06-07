@@ -10,16 +10,16 @@ namespace aevvuploader.Network
     {
         private readonly Queue<Bitmap> _queue;
         private readonly object _sync;
-        private readonly ImageUploader _uploader;
+        private readonly ServerApi _api;
         private readonly UploadResultHandler _handler;
 
-        public UploadQueue(ImageUploader uploader, UploadResultHandler handler)
+        public UploadQueue(ServerApi api, UploadResultHandler handler)
         {
-            if (uploader == null) throw new ArgumentNullException(nameof(uploader));
+            if (api == null) throw new ArgumentNullException(nameof(api));
             if (handler == null) throw new ArgumentNullException(nameof(handler));
             _sync = new object();
             _queue = new Queue<Bitmap>();
-            _uploader = uploader;
+            _api = api;
             _handler = handler;
 
             Task.Factory.StartNew(Upload);
@@ -51,7 +51,7 @@ namespace aevvuploader.Network
                     bitmap = _queue.Dequeue();
                 }
 
-                var result = _uploader.UploadSync(bitmap);
+                var result = _api.UploadSync(bitmap);
 
                 _handler.HandleResult(result);
 

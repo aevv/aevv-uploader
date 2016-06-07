@@ -21,6 +21,7 @@ namespace aevvuploader
         private readonly KeyHandler _handler;
         private readonly KeyboardHook _hook;
         private readonly Config _config;
+        private readonly UploadQueue _uploadQueue;
 
         private bool _buttonDown;
         private bool _cancel;
@@ -36,11 +37,9 @@ namespace aevvuploader
             ConfigureInvisibleForm();
             ConfigureTrayMenu();
 
-            var keyManager = new KeyManager();
-
-            _config = keyManager.Load();
-
-            _handler = new KeyHandler(this, new UploadQueue(new ImageUploader(_config), new UploadResultHandler(this, _config)));
+            _config = Config.Load("config.json");
+            _uploadQueue = new UploadQueue(new ServerApi(_config), new UploadResultHandler(this, _config));
+            _handler = new KeyHandler(this, _uploadQueue.QueueImage);
             _hook = new KeyboardHook();
             _handler.RegisterKeys(_hook);
             _hook.KeyPressed += _handler.Handle;
@@ -64,7 +63,6 @@ namespace aevvuploader
         private void UploadComplete(string url)
         {
             Clipboard.SetText(url);
-            ConfigureTrayIcon();
             _trayIcon.BalloonTipText = url;
             _trayIcon.BalloonTipClicked += (sender, args) => { OpenUrl(url); };
             _trayIcon.ShowBalloonTip(1000);

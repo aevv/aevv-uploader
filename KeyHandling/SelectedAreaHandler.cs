@@ -10,15 +10,15 @@ namespace aevvuploader.KeyHandling
 {
     internal class SelectedAreaHandler : IInputHandler
     {
-        private UploadQueue _queue;
-        public void Handle(IInvisibleForm form, KeyboardHook hook, UploadQueue queue)
+        private Action<Bitmap> _callback;
+        public void Handle(IInvisibleForm form, KeyboardHook hook, Action<Bitmap> callback)
         {
             if (form == null) throw new ArgumentNullException(nameof(form));
             if (hook == null) throw new ArgumentNullException(nameof(hook));
-            if (queue == null) throw new ArgumentNullException(nameof(queue));
+            if (callback == null) throw new ArgumentNullException(nameof(callback));
             if (!form.Visible)
             {
-                _queue = queue;
+                _callback = callback;
                 form.Explode(CaptureArea);
             }
         }
@@ -36,7 +36,7 @@ namespace aevvuploader.KeyHandling
 
             var bitmap = ScreenshotCreator.GetArea(area);
 
-            _queue?.QueueImage(bitmap);
+            _callback(bitmap);
         }
     }
 }

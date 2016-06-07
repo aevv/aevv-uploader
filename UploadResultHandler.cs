@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using aevvuploader.ApiModels;
 using aevvuploader.Extensions;
+using Newtonsoft.Json;
 
 namespace aevvuploader
 {
@@ -25,17 +27,11 @@ namespace aevvuploader
         public void HandleResult(string result)
         {
             if (string.IsNullOrEmpty(result)) throw new ArgumentNullException(nameof(result));
-            // TODO: real response
-            // TODO: handle key expired - attempt renew and reupload?
 
-            var values = result.Split(',').ToIntArray();
-
-            if (values[0] == 1)
+            var uploadResult = JsonConvert.DeserializeObject<UploadResult>(result);
+            if (uploadResult.Code == 0)
             {
-                var id = values[1];
-                var url = $"{_config.BaseUrl}{id}";
-
-                _form.SuccessfulUpload(url);
+                _form.SuccessfulUpload($"{_config.BaseUrl}i/{uploadResult.UploadId}");
             }
         }
     }

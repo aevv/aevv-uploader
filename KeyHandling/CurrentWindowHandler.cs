@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
 using aevvuploader.Network;
@@ -9,16 +10,16 @@ namespace aevvuploader.KeyHandling
 {
     internal class CurrentWindowHandler : IInputHandler
     {
-        public void Handle(IInvisibleForm form, KeyboardHook hook, UploadQueue queue)
+        public void Handle(IInvisibleForm form, KeyboardHook hook, Action<Bitmap> callback)
         {
             if (form == null) throw new ArgumentNullException(nameof(form));
             if (hook == null) throw new ArgumentNullException(nameof(hook));
-            if (queue == null) throw new ArgumentNullException(nameof(queue));
+            if (callback == null) throw new ArgumentNullException(nameof(callback));
 
 
             var windowBitmap = ScreenshotCreator.GetActiveWindow();
 
-            queue.QueueImage(windowBitmap);
+            callback(windowBitmap);
         }
 
         public Keys TriggerKey => Keys.D2;
